@@ -5,9 +5,9 @@ from django.http import HttpRequest, HttpResponse, JsonResponse
 
 # Create your views here.
 
-# class IndexView(View):
-#     def get(self, request: HttpRequest) -> HttpResponse:
-#         return render(request, "login/index.html")
+class IndexView(View):
+    def get(self, request: HttpRequest) -> HttpResponse:
+        return render(request, "login/index.html")
 
 
 class LoginView(View):
