@@ -33,11 +33,14 @@ class NoteDetailAPIView(APIView):
     def put(self, request: Request, pk) -> Response:
         note = get_object_or_404(Note, pk=pk)
         data = request.data.get("title")
-        data = Note(title=data["title"])
-
-        serializer = serializers.serialize_note_do_json(note)
-
-        note.public = True
+        note.title = data
         note.save()
 
-        return Response(note)
+        return Response(serializers.serialize_note_do_json(note))
+
+    def delete(self, request: Request, pk) -> Response:
+        note = get_object_or_404(Note, pk=pk)
+        note.delete()
+
+
+        return Response(f"Запись: \n {note} \n удалена")
