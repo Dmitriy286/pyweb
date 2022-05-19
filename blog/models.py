@@ -32,3 +32,9 @@ class Comment(models.Model):
         GOOD = 4, _('Хорошо')
         EXCELLENT = 5, _('Отлично')
 
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    note = models.ForeignKey(Note, on_delete=models.CASCADE)
+    rating = models.IntegerField(default=Ratings.WITHOUT_RATING, choices=Ratings)
+
+    def __str__(self):
+        return f'Заголовок: {self.get_rating_display()}: {self.author}'
