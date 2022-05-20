@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.generics import ListAPIView
 
 from blog.models import Note, Comment
 from . import serializers
@@ -22,22 +23,21 @@ class NoteListCreateAPIView(APIView):
         return Response(serializer.data)
 
     def post(self, request: Request) -> Response:
+        serializer = serializers.NoteSerializer(data=request.data)
+
+        # if not serializer.is_valid():
+        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.is_valid(raise_exception=True)
+        serializer.save() #author=request.user
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         # data = request.data
-        serializer = serializers.NoteSerializer(
-            data=request.data
-        )
-
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        serializer.save(author=request.user)
-
         # note = Note(title=data["title"])
         # note = Note(**data, author=request.user)
         # note.save(force_insert=True)
-
         # return Response(serializers.serialize_note_created(note), status=status.HTTP_201_CREATED)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 class NoteDetailAPIView(APIView):
     def get(self, request: Request, pk) -> Response:
@@ -61,6 +61,15 @@ class NoteDetailAPIView(APIView):
         return Response(f"Запись: \n {note} \n удалена")
 
 
+class NotePublicListAPIView(ListAPIView):
+    queryset = Note.objects.all()
+    serializer_class = serializers.NoteSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(public=True)
+
+
 class CommentListCreateAPIView(APIView):
     def get(self, request: Request) -> Response:
         comments = Comment.objects.all()
@@ -68,8 +77,11 @@ class CommentListCreateAPIView(APIView):
 
     def post(self, request: Request) -> Response:
         data = request.data
-        # comment = Comment(author=data["author"], note=data["note"], rating=data["rating"])
-        comment = Comment(note=data["note"], rating=data["rating"], author=request.user)
+
+        # note = Note.objects.get(pk=data["note"])
+        # comment = Comment(note=note, rating=data["rating"], author=request.user)
+
+        comment = Comment(note_id=data["note"], rating=data["rating"], author=request.user)
         comment.save(force_insert=True)
 
         return Response(serializers.serialize_comment_created(comment), status=status.HTTP_201_CREATED)

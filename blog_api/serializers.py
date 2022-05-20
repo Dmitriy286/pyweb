@@ -44,9 +44,9 @@ def serialize_comment_created(comment: Comment) -> dict:
 class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
-        # fields = "__all__"
-        exclude = ("public", )
-        read_only_fields = ("author", )
+        fields = "__all__"
+        # exclude = ("public", )
+        # read_only_fields = ("author", )
 
 
 

@@ -20,8 +20,10 @@ from . import views
 
 urlpatterns = [
     path('notes/', views.NoteListCreateAPIView.as_view()),
-    path('notes/<int:pk>', views.NoteDetailAPIView.as_view()),
+    path('notes/<int:pk>/', views.NoteDetailAPIView.as_view()),
     path('comments/', views.CommentListCreateAPIView.as_view()),
-    path('comments/<int:pk>', views.CommentDetailAPIView.as_view()),
+    path('comments/<int:pk>/', views.CommentDetailAPIView.as_view()),
+    path('notes/public/', views.NotePublicListAPIView.as_view()),
+    # path('comments/<int:pk>/', views.CommentDetailAPIView.as_view()),
 
 ]
