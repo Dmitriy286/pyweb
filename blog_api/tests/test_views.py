@@ -1,3 +1,4 @@
+import unittest
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.contrib.auth.models import User
@@ -32,9 +33,18 @@ class TestNoteListCreateAPIView(APITestCase):
         response_data = resp.data
         self.assertEqual(2, len(response_data))
 
+    @unittest.skip("Еще не реализовано")
     def test_create_object(self):
+        new_title = "test_title"
+        data = {
+            "title": new_title
+        }
+        url = "/notes/"
+        # resp = self.client.post(url, data=data, content_type="application/json") #todo doesn't work
+        # self.assertEqual(status.HTTP_200_OK, resp.status_code)
 
-        ...
+        # note = Note.objects.get(title=new_title)
+        Note.objects.get(title=new_title) #self.assertTrue(Note.objects.exists(title=new_title))
 
 
 class TestNoteDetailAPIView(APITestCase):

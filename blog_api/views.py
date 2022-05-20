@@ -14,16 +14,30 @@ from rest_framework import status
 class NoteListCreateAPIView(APIView):
     def get(self, request: Request) -> Response:
         notes = Note.objects.all()
-        return Response([serializers.serialize_note_to_json(note) for note in notes])
+        serializer = serializers.NoteSerializer(
+            instance=notes,
+            many=True
+        )
+        # return Response([serializers.serialize_note_to_json(note) for note in notes])
+        return Response(serializer.data)
 
     def post(self, request: Request) -> Response:
-        data = request.data
+        # data = request.data
+        serializer = serializers.NoteSerializer(
+            data=request.data
+        )
+
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save(author=request.user)
+
         # note = Note(title=data["title"])
-        note = Note(**data, author=request.user)
-        note.save(force_insert=True)
+        # note = Note(**data, author=request.user)
+        # note.save(force_insert=True)
 
-        return Response(serializers.serialize_note_created(note), status=status.HTTP_201_CREATED)
-
+        # return Response(serializers.serialize_note_created(note), status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class NoteDetailAPIView(APIView):
     def get(self, request: Request, pk) -> Response:
@@ -55,7 +69,7 @@ class CommentListCreateAPIView(APIView):
     def post(self, request: Request) -> Response:
         data = request.data
         # comment = Comment(author=data["author"], note=data["note"], rating=data["rating"])
-        comment = Comment(**data, author=request.user)
+        comment = Comment(note=data["note"], rating=data["rating"], author=request.user)
         comment.save(force_insert=True)
 
         return Response(serializers.serialize_comment_created(comment), status=status.HTTP_201_CREATED)
