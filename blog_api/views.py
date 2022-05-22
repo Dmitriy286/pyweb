@@ -25,10 +25,10 @@ class NoteListCreateAPIView(APIView):
     def post(self, request: Request) -> Response:
         serializer = serializers.NoteSerializer(data=request.data)
 
-        # if not serializer.is_valid():
-        #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        serializer.is_valid(raise_exception=True)
+        # serializer.is_valid(raise_exception=True)
         serializer.save() #author=request.user
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -38,12 +38,26 @@ class NoteListCreateAPIView(APIView):
         # note.save(force_insert=True)
         # return Response(serializers.serialize_note_created(note), status=status.HTTP_201_CREATED)
 
+    def delete(self, request: Request) -> Response:
+        notes = Note.objects.all()
+        notes.delete()
+
+        return Response("Все записи удалены")
 
 class NoteDetailAPIView(APIView):
     def get(self, request: Request, pk) -> Response:
-        # note = Note.objects.get(pk)
+        # # note = Note.objects.get(pk)
         note = get_object_or_404(Note, pk=pk)
-        return Response(serializers.serialize_note_to_json(note))
+        # return Response(serializers.serialize_note_to_json(note))
+
+        # serializer = serializers.NoteSerializer(
+        #     instance=note
+        # )
+
+        serializer = serializers.NoteDetailSerializer(
+            instance=note
+        )
+        return Response(serializer.data)
 
     def put(self, request: Request, pk) -> Response:
         note = get_object_or_404(Note, pk=pk)

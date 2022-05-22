@@ -40,13 +40,36 @@ def serialize_comment_created(comment: Comment) -> dict:
         "author": comment.author_id
     }
 
+class CommentSerializer(serializers.ModelSerializer):
+
+
+
+    class Meta:
+        model = Comment
+        fields = "__all__"
+
 
 class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
-        fields = "__all__"
-        # exclude = ("public", )
-        # read_only_fields = ("author", )
+        # fields = "__all__"
+        exclude = ("public", )
+        read_only_fields = ("author", )
+
+
+class NoteDetailSerializer(serializers.ModelSerializer):
+    title = serializers.CharField()
+    author = serializers.SlugRelatedField(
+        slug_field="username",
+        read_only=True
+    )
+    comment_set = CommentSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Note
+        fields = ("title", "message", "create_at", "update_at",
+                  "author", "comment_set")
+
 
 
 
