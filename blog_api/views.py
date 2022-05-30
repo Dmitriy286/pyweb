@@ -2,13 +2,14 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.generics import ListAPIView
+from rest_framework.generics import ListAPIView, GenericAPIView
 
 from blog.models import Note, Comment
-from . import serializers
+from . import serializers, filters
 
 from django.shortcuts import get_object_or_404
-from rest_framework import status
+from rest_framework import status, mixins
+
 
 # Create your views here.
 
@@ -29,7 +30,7 @@ class NoteListCreateAPIView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
         # serializer.is_valid(raise_exception=True)
-        serializer.save() #author=request.user
+        serializer.save(author=request.user) #author=request.user
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         # data = request.data
@@ -119,3 +120,28 @@ class CommentDetailAPIView(APIView):
         comment.save()
 
         return Response(serializers.serialize_comment_to_json(comment))
+
+class ListAPIView(mixins.ListModelMixin, GenericAPIView):
+    queryset = Note.objects.all()
+    serializer_class = serializers.NoteDetailSerializer
+    def get(self, request, *args, **kwargs):
+        return self.list(request, *args, **kwargs)
+
+
+class PublicNoteListAPIView(ListAPIView):
+    queryset = Note.objects.all()
+    serializer_class = serializers.NotePublicSerializer
+
+    def get_queryset(self):
+        print(self.request.query_params)
+        queryset = super().get_queryset()
+        return queryset.filter(public=True)
+
+    def filter_queryset(self, queryset):
+        queryset = filters.author_id_filter(
+            queryset,
+            # author_id=self.request.user.id
+            author_id=self.request.query_params.get("author_id")
+        )
+
+        return queryset
