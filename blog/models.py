@@ -32,7 +32,7 @@ class Comment(models.Model):
         GOOD = 4, _('Хорошо')
         EXCELLENT = 5, _('Отлично')
 
-    note = models.ForeignKey(Note, on_delete=models.CASCADE)
+    note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name='comments')
     rating = models.IntegerField(default=Ratings.WITHOUT_RATING, choices=Ratings.choices, verbose_name="Оценка")
     author = models.ForeignKey(User, on_delete=models.CASCADE)
 
